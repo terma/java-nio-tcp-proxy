@@ -23,18 +23,20 @@ public class HandlerProxy implements Handler {
                     System.out.println("Client decides to close.");
                     holder.close();
                 } else {
-                    holder.clientBuffer.flip();
+                    holder.serverBuffer.flip();
                     holder.serverBufferState = BufferState.READY_TO_READ;
                     holder.register(key.selector());
+                    System.out.println("Red from client " + read + " bytes");
                 }
             }
 
             if (key.isValid() && key.isWritable()) {
                 // buffer -> client
-                holder.clientChannel.write(holder.clientBuffer);
+                int write = holder.clientChannel.write(holder.clientBuffer);
                 holder.clientBuffer.clear();
                 holder.clientBufferState = BufferState.READY_TO_WRITE;
                 holder.register(key.selector());
+                System.out.println("Wrote to client " + write + " bytes");
             }
         }
 
@@ -49,14 +51,16 @@ public class HandlerProxy implements Handler {
                     holder.clientBuffer.flip();
                     holder.clientBufferState = BufferState.READY_TO_READ;
                     holder.register(key.selector());
+                    System.out.println("Red from server " + read + " bytes");
                 }
             }
 
             if (key.isValid() && key.isWritable()) {
-                holder.serverChannel.write(holder.serverBuffer);
+                int write = holder.serverChannel.write(holder.serverBuffer);
                 holder.serverBuffer.clear();
                 holder.serverBufferState = BufferState.READY_TO_WRITE;
                 holder.register(key.selector());
+                System.out.println("Wrote to server " + write + " bytes");
             }
         }
     }

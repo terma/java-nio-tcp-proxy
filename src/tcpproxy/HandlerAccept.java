@@ -23,7 +23,7 @@ public class HandlerAccept implements Handler {
             final SocketChannel client = server.accept();
             client.configureBlocking(false);
 
-            InetSocketAddress socketAddress = new InetSocketAddress("localhost", 7000);
+            InetSocketAddress socketAddress = new InetSocketAddress("localhost", 8000);
             SocketChannel serverChannel = SocketChannel.open();
             serverChannel.connect(socketAddress);
             serverChannel.configureBlocking(false);

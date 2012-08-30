@@ -11,7 +11,7 @@ public class Runner {
     public static void main(final String[] args) throws IOException, ExecutionException, InterruptedException {
 
         final ServerSocketChannel server = ServerSocketChannel.open();
-        server.socket().bind(new java.net.InetSocketAddress(8000));
+        server.socket().bind(new java.net.InetSocketAddress(7000));
         server.configureBlocking(false);
 
         final Selector selector = Selector.open();
