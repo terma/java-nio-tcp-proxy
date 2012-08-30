@@ -9,6 +9,8 @@ import java.nio.channels.SocketChannel;
 
 public class HandlerProxy implements Handler {
 
+    private static final boolean DEBUG = false;
+
     @Override
     public void process(SelectionKey key) throws IOException {
         Holder holder = (Holder) key.attachment();
@@ -20,13 +22,13 @@ public class HandlerProxy implements Handler {
                 int read = holder.clientChannel.read(holder.serverBuffer);
 
                 if (read == -1) {
-                    System.out.println("Client decides to close.");
+                    if (DEBUG) System.out.println("Client decides to close.");
                     holder.close();
                 } else {
                     holder.serverBuffer.flip();
                     holder.serverBufferState = BufferState.READY_TO_READ;
                     holder.register(key.selector());
-                    System.out.println("Red from client " + read + " bytes");
+                    if (DEBUG) System.out.println("Red from client " + read + " bytes");
                 }
             }
 
@@ -36,7 +38,7 @@ public class HandlerProxy implements Handler {
                 holder.clientBuffer.clear();
                 holder.clientBufferState = BufferState.READY_TO_WRITE;
                 holder.register(key.selector());
-                System.out.println("Wrote to client " + write + " bytes");
+                if (DEBUG) System.out.println("Wrote to client " + write + " bytes");
             }
         }
 
@@ -45,13 +47,13 @@ public class HandlerProxy implements Handler {
                 int read = holder.serverChannel.read(holder.clientBuffer);
 
                 if (read == -1) {
-                    System.out.println("Server decides to close.");
+                    if (DEBUG) System.out.println("Server decides to close.");
                     holder.close();
                 } else {
                     holder.clientBuffer.flip();
                     holder.clientBufferState = BufferState.READY_TO_READ;
                     holder.register(key.selector());
-                    System.out.println("Red from server " + read + " bytes");
+                    if (DEBUG) System.out.println("Red from server " + read + " bytes");
                 }
             }
 
@@ -60,7 +62,7 @@ public class HandlerProxy implements Handler {
                 holder.serverBuffer.clear();
                 holder.serverBufferState = BufferState.READY_TO_WRITE;
                 holder.register(key.selector());
-                System.out.println("Wrote to server " + write + " bytes");
+                if (DEBUG) System.out.println("Wrote to server " + write + " bytes");
             }
         }
     }
@@ -80,7 +82,7 @@ public class HandlerProxy implements Handler {
             clientChannel.close();
             serverChannel.close();
 
-            System.out.println("Holder was closed.");
+            if (DEBUG) System.out.println("Holder was closed.");
         }
 
         public void register(Selector selector) throws ClosedChannelException {
@@ -94,7 +96,7 @@ public class HandlerProxy implements Handler {
             if (serverBufferState == BufferState.READY_TO_READ) serverOps |= SelectionKey.OP_WRITE;
             serverChannel.register(selector, serverOps, this);
 
-            System.out.println("Holder was registered client " + clientOps + " server " + serverOps);
+            if (DEBUG) System.out.println("Holder was registered client " + clientOps + " server " + serverOps);
         }
 
     }
