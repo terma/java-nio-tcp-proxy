@@ -1,4 +1,4 @@
-package tcpproxy;
+package tcpproxy.handler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -19,18 +19,16 @@ public class HandlerAccept implements Handler {
     public void process(final SelectionKey key) throws IOException {
         if (key.isValid() && key.isAcceptable()) {
             final ServerSocketChannel server = (ServerSocketChannel) key.channel();
-            final SocketChannel client = server.accept();
-            client.configureBlocking(false);
+            final SocketChannel clientChannel = server.accept();
+            clientChannel.configureBlocking(false);
 
             InetSocketAddress socketAddress = new InetSocketAddress("localhost", 8000);
             SocketChannel serverChannel = SocketChannel.open();
             serverChannel.connect(socketAddress);
             serverChannel.configureBlocking(false);
 
-            Holder holder = new Holder(client, serverChannel);
-
-            client.register(selector, SelectionKey.OP_READ, holder);
-            serverChannel.register(selector, SelectionKey.OP_READ, holder);
+            Proxy proxy = new Proxy(selector, clientChannel, serverChannel);
+            proxy.register();
         }
     }
 

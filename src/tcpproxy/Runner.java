@@ -1,5 +1,8 @@
 package tcpproxy;
 
+import tcpproxy.dispatcher.Dispatcher;
+import tcpproxy.dispatcher.DispatcherSameThread;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;

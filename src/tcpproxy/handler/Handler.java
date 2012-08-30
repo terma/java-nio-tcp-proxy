@@ -1,4 +1,4 @@
-package tcpproxy;
+package tcpproxy.handler;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;

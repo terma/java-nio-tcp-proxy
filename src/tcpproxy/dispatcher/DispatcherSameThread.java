@@ -1,4 +1,9 @@
-package tcpproxy;
+package tcpproxy.dispatcher;
+
+import tcpproxy.handler.Handler;
+import tcpproxy.handler.HandlerAccept;
+import tcpproxy.handler.HandlerComposite;
+import tcpproxy.handler.HandlerProxy;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
