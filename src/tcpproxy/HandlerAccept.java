@@ -2,15 +2,12 @@ package tcpproxy;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 public class HandlerAccept implements Handler {
-
-    private final static int BUFFER_SIZE = 512 * 1024;
 
     private final Selector selector;
 
@@ -30,13 +27,7 @@ public class HandlerAccept implements Handler {
             serverChannel.connect(socketAddress);
             serverChannel.configureBlocking(false);
 
-            HandlerProxy.Holder holder = new HandlerProxy.Holder();
-            holder.clientChannel = client;
-            holder.serverChannel = serverChannel;
-            holder.clientBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-            holder.clientBufferState = HandlerProxy.BufferState.READY_TO_WRITE;
-            holder.serverBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-            holder.serverBufferState = HandlerProxy.BufferState.READY_TO_WRITE;
+            HandlerProxy.Holder holder = new HandlerProxy.Holder(client, serverChannel);
 
             client.register(selector, SelectionKey.OP_READ, holder);
             serverChannel.register(selector, SelectionKey.OP_READ, holder);

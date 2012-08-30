@@ -24,7 +24,7 @@ public class HandlerProxy implements Handler {
                 if (read == -1) {
                     if (DEBUG) System.out.println("Client decides to close.");
                     holder.close();
-                } else {
+                } else if (read > 0) {
                     holder.serverBuffer.flip();
                     holder.serverBufferState = BufferState.READY_TO_READ;
                     holder.register(key.selector());
@@ -35,10 +35,12 @@ public class HandlerProxy implements Handler {
             if (key.isValid() && key.isWritable()) {
                 // buffer -> client
                 int write = holder.clientChannel.write(holder.clientBuffer);
-                holder.clientBuffer.clear();
-                holder.clientBufferState = BufferState.READY_TO_WRITE;
-                holder.register(key.selector());
-                if (DEBUG) System.out.println("Wrote to client " + write + " bytes");
+                if (write > 0) {
+                    holder.clientBuffer.clear();
+                    holder.clientBufferState = BufferState.READY_TO_WRITE;
+                    holder.register(key.selector());
+                    if (DEBUG) System.out.println("Wrote to client " + write + " bytes");
+                }
             }
         }
 
@@ -49,7 +51,7 @@ public class HandlerProxy implements Handler {
                 if (read == -1) {
                     if (DEBUG) System.out.println("Server decides to close.");
                     holder.close();
-                } else {
+                } else if (read > 0) {
                     holder.clientBuffer.flip();
                     holder.clientBufferState = BufferState.READY_TO_READ;
                     holder.register(key.selector());
@@ -59,24 +61,33 @@ public class HandlerProxy implements Handler {
 
             if (key.isValid() && key.isWritable()) {
                 int write = holder.serverChannel.write(holder.serverBuffer);
-                holder.serverBuffer.clear();
-                holder.serverBufferState = BufferState.READY_TO_WRITE;
-                holder.register(key.selector());
-                if (DEBUG) System.out.println("Wrote to server " + write + " bytes");
+                if (write > 0) {
+                    holder.serverBuffer.clear();
+                    holder.serverBufferState = BufferState.READY_TO_WRITE;
+                    holder.register(key.selector());
+                    if (DEBUG) System.out.println("Wrote to server " + write + " bytes");
+                }
             }
         }
     }
 
     public static class Holder {
 
-        public SocketChannel clientChannel;
-        public SocketChannel serverChannel;
+        private final static int BUFFER_SIZE = 1000;
 
-        public ByteBuffer serverBuffer;
-        public BufferState serverBufferState;
+        public final SocketChannel clientChannel;
+        public final SocketChannel serverChannel;
 
-        public ByteBuffer clientBuffer;
-        public BufferState clientBufferState;
+        public final ByteBuffer serverBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        public BufferState serverBufferState = BufferState.READY_TO_WRITE;
+
+        public final ByteBuffer clientBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        public BufferState clientBufferState = BufferState.READY_TO_WRITE;
+
+        public Holder(SocketChannel clientChannel, SocketChannel serverChannel) {
+            this.clientChannel = clientChannel;
+            this.serverChannel = serverChannel;
+        }
 
         public void close() throws IOException {
             clientChannel.close();
