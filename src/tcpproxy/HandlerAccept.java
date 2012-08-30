@@ -27,7 +27,7 @@ public class HandlerAccept implements Handler {
             serverChannel.connect(socketAddress);
             serverChannel.configureBlocking(false);
 
-            HandlerProxy.Holder holder = new HandlerProxy.Holder(client, serverChannel);
+            Holder holder = new Holder(client, serverChannel);
 
             client.register(selector, SelectionKey.OP_READ, holder);
             serverChannel.register(selector, SelectionKey.OP_READ, holder);

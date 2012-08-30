@@ -1,10 +1,7 @@
 package tcpproxy;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 public class HandlerProxy implements Handler {
@@ -17,105 +14,58 @@ public class HandlerProxy implements Handler {
         if (holder == null) return;
 
         if (key.channel() == holder.clientChannel) {
-            if (key.isValid() && key.isReadable()) {
-                // client -> buffer
-                int read = holder.clientChannel.read(holder.serverBuffer);
-
-                if (read == -1) {
-                    if (DEBUG) System.out.println("Client decides to close.");
-                    holder.close();
-                } else if (read > 0) {
-                    holder.serverBuffer.flip();
-                    holder.serverBufferState = BufferState.READY_TO_READ;
-                    holder.register(key.selector());
-                    if (DEBUG) System.out.println("Red from client " + read + " bytes");
-                }
-            }
-
-            if (key.isValid() && key.isWritable()) {
-                // buffer -> client
-                int write = holder.clientChannel.write(holder.clientBuffer);
-                if (write > 0) {
-                    holder.clientBuffer.clear();
-                    holder.clientBufferState = BufferState.READY_TO_WRITE;
-                    holder.register(key.selector());
-                    if (DEBUG) System.out.println("Wrote to client " + write + " bytes");
-                }
-            }
+            if (key.isValid() && key.isReadable()) readFromClient(key, holder);
+            if (key.isValid() && key.isWritable()) writeToClient(key, holder);
         }
 
         if (key.channel() == holder.serverChannel) {
-            if (key.isValid() && key.isReadable()) {
-                int read = holder.serverChannel.read(holder.clientBuffer);
-
-                if (read == -1) {
-                    if (DEBUG) System.out.println("Server decides to close.");
-                    holder.close();
-                } else if (read > 0) {
-                    holder.clientBuffer.flip();
-                    holder.clientBufferState = BufferState.READY_TO_READ;
-                    holder.register(key.selector());
-                    if (DEBUG) System.out.println("Red from server " + read + " bytes");
-                }
-            }
-
-            if (key.isValid() && key.isWritable()) {
-                int write = holder.serverChannel.write(holder.serverBuffer);
-                if (write > 0) {
-                    holder.serverBuffer.clear();
-                    holder.serverBufferState = BufferState.READY_TO_WRITE;
-                    holder.register(key.selector());
-                    if (DEBUG) System.out.println("Wrote to server " + write + " bytes");
-                }
-            }
+            if (key.isValid() && key.isReadable()) readFromServer(key, holder);
+            if (key.isValid() && key.isWritable()) writeToServer(key, holder);
         }
     }
 
-    public static class Holder {
+    private void readFromServer(SelectionKey key, Holder holder) throws IOException {
+        int read = holder.serverChannel.read(holder.clientBuffer.getBuffer());
 
-        private final static int BUFFER_SIZE = 1000;
-
-        public final SocketChannel clientChannel;
-        public final SocketChannel serverChannel;
-
-        public final ByteBuffer serverBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-        public BufferState serverBufferState = BufferState.READY_TO_WRITE;
-
-        public final ByteBuffer clientBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-        public BufferState clientBufferState = BufferState.READY_TO_WRITE;
-
-        public Holder(SocketChannel clientChannel, SocketChannel serverChannel) {
-            this.clientChannel = clientChannel;
-            this.serverChannel = serverChannel;
+        if (read == -1) {
+            if (DEBUG) System.out.println("Server decides to close.");
+            holder.close();
+        } else if (read > 0) {
+            holder.clientBuffer.readyToRead();
+            holder.register(key.selector());
+            if (DEBUG) System.out.println("Red from server " + read + " bytes");
         }
-
-        public void close() throws IOException {
-            clientChannel.close();
-            serverChannel.close();
-
-            if (DEBUG) System.out.println("Holder was closed.");
-        }
-
-        public void register(Selector selector) throws ClosedChannelException {
-            int clientOps = 0;
-            if (serverBufferState == BufferState.READY_TO_WRITE) clientOps |= SelectionKey.OP_READ;
-            if (clientBufferState == BufferState.READY_TO_READ) clientOps |= SelectionKey.OP_WRITE;
-            clientChannel.register(selector, clientOps, this);
-
-            int serverOps = 0;
-            if (clientBufferState == BufferState.READY_TO_WRITE) serverOps |= SelectionKey.OP_READ;
-            if (serverBufferState == BufferState.READY_TO_READ) serverOps |= SelectionKey.OP_WRITE;
-            serverChannel.register(selector, serverOps, this);
-
-            if (DEBUG) System.out.println("Holder was registered client " + clientOps + " server " + serverOps);
-        }
-
     }
 
-    public static enum BufferState {
+    private void writeToClient(SelectionKey key, Holder holder) throws IOException {
+        writeTo(key, holder, holder.clientChannel, holder.clientBuffer, "client");
+    }
 
-        READY_TO_WRITE, READY_TO_READ
+    private void writeToServer(SelectionKey key, Holder holder) throws IOException {
+        writeTo(key, holder, holder.serverChannel, holder.serverBuffer, "server");
+    }
 
+    private void writeTo(SelectionKey key, Holder holder, SocketChannel channel, Buffer buffer, String side) throws IOException {
+        int write = channel.write(buffer.getBuffer());
+        if (write > 0) {
+            buffer.readyToWrite();
+            holder.register(key.selector());
+            if (DEBUG) System.out.println("Wrote to " + side + " " + write + " bytes");
+        }
+    }
+
+    private void readFromClient(SelectionKey key, Holder holder) throws IOException {
+        // client -> buffer
+        int read = holder.clientChannel.read(holder.serverBuffer.getBuffer());
+
+        if (read == -1) {
+            if (DEBUG) System.out.println("Client decides to close.");
+            holder.close();
+        } else if (read > 0) {
+            holder.serverBuffer.readyToRead();
+            holder.register(key.selector());
+            if (DEBUG) System.out.println("Red from client " + read + " bytes");
+        }
     }
 
 }
