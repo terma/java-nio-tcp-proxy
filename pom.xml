@@ -1,0 +1,32 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.github.javaniotcpproxy</groupId>
+    <artifactId>javaniotcpproxy</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <name>Java NIO TCP Proxy</name>
+    <description>The maven main core project description</description>
+    <url>https://github.com/terma/java-nio-tcp-proxy</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/terma/java-nio-tcp-proxy.git</url>
+        <connection>https://github.com/terma/java-nio-tcp-proxy.git</connection>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>...</groupId>
+            <artifactId>...</artifactId>
+            <version>...</version>
+        </dependency>
+    </dependencies>
+</project>
