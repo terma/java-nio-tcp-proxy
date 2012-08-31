@@ -6,17 +6,17 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-class Proxy {
+public class TcpProxyHandlerConnector implements TcpProxyHandler {
 
     private final Selector selector;
 
-    private final Buffer clientBuffer = new Buffer();
-    private final Buffer serverBuffer = new Buffer();
+    private final TcpProxyBuffer clientBuffer = new TcpProxyBuffer();
+    private final TcpProxyBuffer serverBuffer = new TcpProxyBuffer();
 
     public final SocketChannel clientChannel;
     public final SocketChannel serverChannel;
 
-    public Proxy(Selector selector, SocketChannel clientChannel, SocketChannel serverChannel) {
+    public TcpProxyHandlerConnector(Selector selector, SocketChannel clientChannel, SocketChannel serverChannel) {
         this.selector = selector;
         this.clientChannel = clientChannel;
         this.serverChannel = serverChannel;
@@ -64,6 +64,23 @@ class Proxy {
             channel.close();
         } catch (IOException exception) {
             // skip exception
+        }
+    }
+
+    @Override
+    public void process(SelectionKey key) {
+        try {
+            if (key.channel() == clientChannel) {
+                if (key.isValid() && key.isReadable()) readFromClient();
+                if (key.isValid() && key.isWritable()) writeToClient();
+            }
+
+            if (key.channel() == serverChannel) {
+                if (key.isValid() && key.isReadable()) readFromServer();
+                if (key.isValid() && key.isWritable()) writeToServer();
+            }
+        } catch (IOException exception) {
+            close();
         }
     }
 

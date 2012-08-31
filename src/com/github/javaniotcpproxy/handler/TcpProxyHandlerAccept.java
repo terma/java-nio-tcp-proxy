@@ -1,5 +1,7 @@
 package com.github.javaniotcpproxy.handler;
 
+import com.github.javaniotcpproxy.configuration.TcpProxyConfig;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -7,12 +9,14 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-public class HandlerAccept implements Handler {
+public class TcpProxyHandlerAccept implements TcpProxyHandler {
 
     private final Selector selector;
+    private final TcpProxyConfig config;
 
-    public HandlerAccept(final Selector newSelector) {
+    public TcpProxyHandlerAccept(final Selector newSelector, TcpProxyConfig config) {
         selector = newSelector;
+        this.config = config;
     }
 
     @Override
@@ -22,13 +26,15 @@ public class HandlerAccept implements Handler {
             final SocketChannel clientChannel = server.accept();
             clientChannel.configureBlocking(false);
 
-            InetSocketAddress socketAddress = new InetSocketAddress("localhost", 8000);
-            SocketChannel serverChannel = SocketChannel.open();
+            final InetSocketAddress socketAddress = new InetSocketAddress(
+                    config.getRemoteHost(), config.getRemotePort());
+            final SocketChannel serverChannel = SocketChannel.open();
             serverChannel.connect(socketAddress);
             serverChannel.configureBlocking(false);
 
-            Proxy proxy = new Proxy(selector, clientChannel, serverChannel);
-            proxy.register();
+            final TcpProxyHandlerConnector handler =
+                    new TcpProxyHandlerConnector(selector, clientChannel, serverChannel);
+            handler.register();
         }
     }
 

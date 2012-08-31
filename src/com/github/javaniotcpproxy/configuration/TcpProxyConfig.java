@@ -1,12 +1,12 @@
-package com.github.configuration;
+package com.github.javaniotcpproxy.configuration;
 
-public class Configuration {
+public class TcpProxyConfig {
 
     private final int localPort;
     private final String remoteHost;
     private final int remotePort;
 
-    public Configuration(int localPort, String remoteHost, int remotePort) {
+    public TcpProxyConfig(int localPort, String remoteHost, int remotePort) {
         this.localPort = localPort;
         this.remoteHost = remoteHost;
         this.remotePort = remotePort;
