@@ -11,11 +11,12 @@ import java.nio.channels.SocketChannel;
 
 public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
 
-    private final Selector selector;
+    private final Selector[] selectors;
     private final TcpProxyConfig config;
+    private int selectorIndex;
 
-    public TcpProxyHandlerAcceptor(final Selector newSelector, TcpProxyConfig config) {
-        selector = newSelector;
+    public TcpProxyHandlerAcceptor(final Selector[] selectors, TcpProxyConfig config) {
+        this.selectors = selectors;
         this.config = config;
     }
 
@@ -32,9 +33,12 @@ public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
             serverChannel.connect(socketAddress);
             serverChannel.configureBlocking(false);
 
-            final TcpProxyHandlerConnector handler =
-                    new TcpProxyHandlerConnector(selector, clientChannel, serverChannel);
+            final TcpProxyHandlerConnector handler = new TcpProxyHandlerConnector(
+                    selectors[selectorIndex], clientChannel, serverChannel);
             handler.register();
+
+            selectorIndex++;
+            if (selectorIndex >= selectors.length) selectorIndex = 0;
         }
     }
 
