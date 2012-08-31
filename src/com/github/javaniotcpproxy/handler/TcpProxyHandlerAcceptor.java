@@ -9,12 +9,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-public class TcpProxyHandlerAccept implements TcpProxyHandler {
+public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
 
     private final Selector selector;
     private final TcpProxyConfig config;
 
-    public TcpProxyHandlerAccept(final Selector newSelector, TcpProxyConfig config) {
+    public TcpProxyHandlerAcceptor(final Selector newSelector, TcpProxyConfig config) {
         selector = newSelector;
         this.config = config;
     }
