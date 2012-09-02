@@ -16,11 +16,15 @@ Copyright 2012 Artem Stasuk
 
 package com.github.javaniotcpproxy.handler;
 
-import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 
 public interface TcpProxyHandler {
 
-    void process(SelectionKey key) throws IOException;
+    void register(Selector selector);
+
+    void process(SelectionKey key);
+
+    void destroy();
 
 }

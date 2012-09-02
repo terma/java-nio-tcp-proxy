@@ -1,19 +1,3 @@
-/*
-Copyright 2012 Artem Stasuk
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
- */
-
 package com.github.javaniotcpproxy.handler;
 
 import com.github.javaniotcpproxy.configuration.TcpProxyConfig;
@@ -24,38 +8,55 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
 
-    private final Selector[] selectors;
-    private final TcpProxyConfig config;
-    private int selectorIndex;
+    private final static Logger LOGGER = Logger.getAnonymousLogger();
 
-    public TcpProxyHandlerAcceptor(final Selector[] selectors, TcpProxyConfig config) {
-        this.selectors = selectors;
+    private final TcpProxyConfig config;
+    private final Queue<TcpProxyHandler> handlers;
+
+    public TcpProxyHandlerAcceptor(final TcpProxyConfig config, final Queue<TcpProxyHandler> handlers) {
         this.config = config;
+        this.handlers = handlers;
     }
 
     @Override
-    public void process(final SelectionKey key) throws IOException {
-        if (key.isValid() && key.isAcceptable()) {
-            final ServerSocketChannel server = (ServerSocketChannel) key.channel();
-            final SocketChannel clientChannel = server.accept();
-            clientChannel.configureBlocking(false);
-
-            final InetSocketAddress socketAddress = new InetSocketAddress(
-                    config.getRemoteHost(), config.getRemotePort());
-            final SocketChannel serverChannel = SocketChannel.open();
-            serverChannel.connect(socketAddress);
-            serverChannel.configureBlocking(false);
-
-            final TcpProxyHandlerConnector handler = new TcpProxyHandlerConnector(
-                    selectors[selectorIndex], clientChannel, serverChannel);
-            handler.register();
-
-            selectorIndex++;
-            if (selectorIndex >= selectors.length) selectorIndex = 0;
+    public void register(final Selector selector) {
+        try {
+            final ServerSocketChannel server = ServerSocketChannel.open();
+            server.socket().bind(new InetSocketAddress(config.getLocalPort()));
+            server.configureBlocking(false);
+            server.register(selector, SelectionKey.OP_ACCEPT, this);
+        } catch (final IOException exception) {
+            if (LOGGER.isLoggable(Level.SEVERE))
+                LOGGER.log(Level.SEVERE, "Can't init server connection!", exception);
         }
+    }
+
+    @Override
+    public void process(SelectionKey key) {
+        if (key.isValid() && key.isAcceptable()) {
+            try {
+                final ServerSocketChannel server = (ServerSocketChannel) key.channel();
+
+                SocketChannel clientChannel;
+                clientChannel = server.accept();
+
+                handlers.add(new TcpProxyHandlerConnector(clientChannel, config));
+            } catch (final IOException exception) {
+                if (LOGGER.isLoggable(Level.SEVERE))
+                    LOGGER.log(Level.SEVERE, "Can't accept client connection!", exception);
+            }
+        }
+    }
+
+    @Override
+    public void destroy() {
+        // nothing
     }
 
 }

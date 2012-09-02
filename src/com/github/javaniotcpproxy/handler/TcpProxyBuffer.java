@@ -18,9 +18,10 @@ package com.github.javaniotcpproxy.handler;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 
-public class TcpProxyBuffer {
+class TcpProxyBuffer {
 
     private static enum BufferState {
 
@@ -43,7 +44,7 @@ public class TcpProxyBuffer {
 
     public void writeFrom(SocketChannel channel) throws IOException {
         int read = channel.read(buffer);
-        if (read == -1) throw new IOException(channel + " decided to close connection.");
+        if (read == -1) throw new ClosedChannelException();
 
         if (read > 0) {
             buffer.flip();

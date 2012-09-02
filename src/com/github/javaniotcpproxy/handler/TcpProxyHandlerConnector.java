@@ -16,26 +16,32 @@ Copyright 2012 Artem Stasuk
 
 package com.github.javaniotcpproxy.handler;
 
+import com.github.javaniotcpproxy.configuration.TcpProxyConfig;
+
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TcpProxyHandlerConnector implements TcpProxyHandler {
 
-    private final Selector selector;
+    private final static Logger LOGGER = Logger.getAnonymousLogger();
 
     private final TcpProxyBuffer clientBuffer = new TcpProxyBuffer();
     private final TcpProxyBuffer serverBuffer = new TcpProxyBuffer();
+    private final SocketChannel clientChannel;
 
-    public final SocketChannel clientChannel;
-    public final SocketChannel serverChannel;
+    private Selector selector;
+    private SocketChannel serverChannel;
+    private TcpProxyConfig config;
 
-    public TcpProxyHandlerConnector(Selector selector, SocketChannel clientChannel, SocketChannel serverChannel) {
-        this.selector = selector;
+    public TcpProxyHandlerConnector(SocketChannel clientChannel, TcpProxyConfig config) {
         this.clientChannel = clientChannel;
-        this.serverChannel = serverChannel;
+        this.config = config;
     }
 
     public void readFromClient() throws IOException {
@@ -58,11 +64,6 @@ public class TcpProxyHandlerConnector implements TcpProxyHandler {
         if (serverBuffer.isReadyToWrite()) register();
     }
 
-    public void close() {
-        closeQuietly(clientChannel);
-        closeQuietly(serverChannel);
-    }
-
     public void register() throws ClosedChannelException {
         int clientOps = 0;
         if (serverBuffer.isReadyToWrite()) clientOps |= SelectionKey.OP_READ;
@@ -76,15 +77,41 @@ public class TcpProxyHandlerConnector implements TcpProxyHandler {
     }
 
     private static void closeQuietly(SocketChannel channel) {
-        try {
-            channel.close();
-        } catch (IOException exception) {
-            // skip exception
+        if (channel != null) {
+            try {
+                channel.close();
+            } catch (IOException exception) {
+                if (LOGGER.isLoggable(Level.WARNING))
+                    LOGGER.log(Level.WARNING, "Could not close channel properly.", exception);
+            }
         }
     }
 
     @Override
-    public void process(SelectionKey key) {
+    public void register(Selector selector) {
+        this.selector = selector;
+
+        try {
+            clientChannel.configureBlocking(false);
+
+            final InetSocketAddress socketAddress = new InetSocketAddress(
+                    config.getRemoteHost(), config.getRemotePort());
+            serverChannel = SocketChannel.open();
+            serverChannel.connect(socketAddress);
+            serverChannel.configureBlocking(false);
+
+            register();
+        } catch (final IOException exception) {
+            destroy();
+
+            if (LOGGER.isLoggable(Level.WARNING))
+                LOGGER.log(Level.WARNING, "Could not connect to "
+                        + config.getRemoteHost() + ":" + config.getRemotePort(), exception);
+        }
+    }
+
+    @Override
+    public void process(final SelectionKey key) {
         try {
             if (key.channel() == clientChannel) {
                 if (key.isValid() && key.isReadable()) readFromClient();
@@ -95,9 +122,23 @@ public class TcpProxyHandlerConnector implements TcpProxyHandler {
                 if (key.isValid() && key.isReadable()) readFromServer();
                 if (key.isValid() && key.isWritable()) writeToServer();
             }
-        } catch (IOException exception) {
-            close();
+        } catch (final ClosedChannelException exception) {
+            destroy();
+
+            if (LOGGER.isLoggable(Level.INFO))
+                LOGGER.log(Level.INFO, "Client ot server closed.", exception);
+        } catch (final IOException exception) {
+            destroy();
+
+            if (LOGGER.isLoggable(Level.WARNING))
+                LOGGER.log(Level.WARNING, "Could not process.", exception);
         }
+    }
+
+    @Override
+    public void destroy() {
+        closeQuietly(clientChannel);
+        closeQuietly(serverChannel);
     }
 
 }

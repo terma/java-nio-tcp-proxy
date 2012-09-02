@@ -21,6 +21,7 @@ import com.github.javaniotcpproxy.configuration.TcpProxyConfig;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TcpProxy {
@@ -43,12 +44,16 @@ public class TcpProxy {
      * @throws IOException
      */
     public void start(final List<TcpProxyConfig> configs) throws IOException {
-        LOGGER.info("Starting tcp proxy with " + configs.size() + " connectors");
+        if (LOGGER.isLoggable(Level.INFO))
+            LOGGER.info("Starting tcp proxy with " + configs.size() + " connectors");
 
         final int cores = Runtime.getRuntime().availableProcessors();
-        LOGGER.info("TcpProxy detected " + cores + " core" + (cores > 1 ? "s" : ""));
+        if (LOGGER.isLoggable(Level.INFO))
+            LOGGER.info("TcpProxy detected " + cores + " core" + (cores > 1 ? "s" : ""));
+
         final int workers = Math.max(cores / configs.size(), 1);
-        LOGGER.info("TcpProxy will use " + workers + " workers per connector");
+        if (LOGGER.isLoggable(Level.INFO))
+            LOGGER.info("TcpProxy will use " + workers + " workers per connector");
 
         final List<TcpProxyConnector> connectors = new ArrayList<TcpProxyConnector>();
         for (final TcpProxyConfig config : configs) {
@@ -67,7 +72,8 @@ public class TcpProxy {
             throw exception;
         }
 
-        LOGGER.info("TcpProxy started");
+        if (LOGGER.isLoggable(Level.INFO))
+            LOGGER.info("TcpProxy started");
     }
 
 }
