@@ -20,11 +20,19 @@ import com.github.terma.javaniotcpserver.TcpServer;
 import com.github.terma.javaniotcpserver.TcpServerConfig;
 
 /**
- * Use {@link TcpServer} for create proxy server based on NIO
- * with multi-thread processing.
+ * TCP proxy.
+ * <p/>
+ * After starting it listening local port and send all incoming
+ * traffic on it from client to remote host and from remote host to client.
+ * <p/>
+ * Multi-thread and asynchronous TCP proxy server based on NIO.
+ * <p/>
+ * You can create any count of proxy instances and run they in together.
  *
  * @see TcpProxyConnectorFactory
  * @see TcpProxyConnector
+ * @see TcpProxyConfig
+ * @see TcpServer
  */
 public class TcpProxy {
 
@@ -38,10 +46,26 @@ public class TcpProxy {
         server = new TcpServer(serverConfig);
     }
 
+    /**
+     * Start server.
+     * This method run servers worked then return control.
+     * This method isn't blocking.
+     * <p/>
+     * If you call this method when server is started, it throw exception.
+     * <p/>
+     * See {@link com.github.terma.javaniotcpserver.TcpServer#start()}
+     */
     public void start() {
         server.start();
     }
 
+    /**
+     * Stop server and release all resources.
+     * If server already been closed this method return immediately
+     * without side effects.
+     * <p/>
+     * See {@link com.github.terma.javaniotcpserver.TcpServer#shutdown()}
+     */
     public void shutdown() {
         server.shutdown();
     }

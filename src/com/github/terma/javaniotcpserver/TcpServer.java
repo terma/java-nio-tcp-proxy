@@ -24,15 +24,19 @@ import java.util.logging.Logger;
 /**
  * Simple TCP server based on NIO.
  * <p/>
- * This server provides functionality only for opens server
- * socket receives incoming connection. After that server use external
- * handler factory {@link TcpServerHandlerFactory} for create handler for
- * each incoming connection {@link TcpServerHandler}
+ * Server use workers for process incoming client connections.
  * <p/>
- * Server processes incoming connections in multi-thread mode.
- * It creates queues for incoming connection and pool of thread + selector,
- * only one thread will be acceptor for incoming connection, others will
- * use queues for get accepted connection and start work with it till finish.
+ * Worker is thread, it waits on own selector {@link java.nio.channels.Selector}
+ * <p/>
+ * Only one worker processes accept for incoming client connection, after
+ * that this worker uses @{link TcpServerHandlerFactory} for create
+ * handler @{link TcpServerHandler} and add it to not started handlers queue. All workers
+ * have access to this queue.
+ * <p/>
+ * Worker has next lifecycle: try to get one not started handler from queue
+ * if it exists register it, then wait on selector with timeout, get IO events
+ * for each event get attached handler from key and process it.
+ * After that worker returns to step with queue.
  *
  * @see TcpServerConfig
  * @see TcpServerHandler
@@ -58,7 +62,7 @@ public class TcpServer {
      * Method return control when all worker will be started, it isn't block.
      *
      * @throws IllegalArgumentException      - if count of workers less then 1
-     * @throws UnsupportedOperationException - if you try start already started connector
+     * @throws UnsupportedOperationException - if you try to start already started connector
      */
     public void start() {
         if (config.getWorkerCount() < 1) throw new IllegalArgumentException("Count of workers should be at least 1!");
