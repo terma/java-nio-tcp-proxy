@@ -60,7 +60,7 @@ class TcpServerAcceptor implements TcpServerHandler {
                 SocketChannel clientChannel;
                 clientChannel = server.accept();
 
-                handlers.add(config.getFactory().create(clientChannel));
+                handlers.add(config.getHandlerFactory().create(clientChannel));
             } catch (final IOException exception) {
                 if (LOGGER.isLoggable(Level.SEVERE))
                     LOGGER.log(Level.SEVERE, "Can't accept client connection!", exception);

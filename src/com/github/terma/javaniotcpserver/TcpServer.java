@@ -52,7 +52,14 @@ public class TcpServer {
     private Queue<TcpServerHandler> handlers;
     private Thread[] workers;
 
+    /**
+     * @param config - config
+     * @throws IllegalArgumentException - when worker count < 1
+     */
     public TcpServer(final TcpServerConfig config) {
+        if (config == null)
+            throw new NullPointerException("Please specify config! Thx!");
+
         this.config = config;
         name = "TcpServer on port " + config.getPort();
     }
@@ -61,11 +68,9 @@ public class TcpServer {
      * This method starts waiting incoming connections for proxy to remote host.
      * Method return control when all worker will be started, it isn't block.
      *
-     * @throws IllegalArgumentException      - if count of workers less then 1
      * @throws UnsupportedOperationException - if you try to start already started connector
      */
     public void start() {
-        if (config.getWorkerCount() < 1) throw new IllegalArgumentException("Count of workers should be at least 1!");
         if (workers != null) throw new UnsupportedOperationException("Please shutdown connector!");
 
         if (LOGGER.isLoggable(Level.INFO))

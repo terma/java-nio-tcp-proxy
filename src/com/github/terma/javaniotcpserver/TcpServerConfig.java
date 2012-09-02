@@ -16,34 +16,50 @@ Copyright 2012 Artem Stasuk
 
 package com.github.terma.javaniotcpserver;
 
+/**
+ * Configuration for TCP server
+ */
 public class TcpServerConfig {
 
-    private int port;
-    private int workerCount;
-    private TcpServerHandlerFactory factory;
+    private final int port;
+    private final int workerCount;
+    private final TcpServerHandlerFactory handlerFactory;
 
-    public TcpServerConfig(int port) {
+    public TcpServerConfig(int port, TcpServerHandlerFactory handlerFactory, int workerCount) {
+        if (workerCount < 1)
+            throw new IllegalArgumentException("Count of workers should be at least 1!");
+
+        if (port < 0)
+            throw new IllegalArgumentException("Port can't be negative!");
+
+        if (handlerFactory == null)
+            throw new NullPointerException("Please specify handler factory!");
+
         this.port = port;
+        this.workerCount = workerCount;
+        this.handlerFactory = handlerFactory;
     }
 
+    /**
+     * @return - local port which TCP server will be listening, should be 0..64000
+     */
     public int getPort() {
         return port;
     }
 
-    public TcpServerHandlerFactory getFactory() {
-        return factory;
+    /**
+     * @return - handler factory which TCP server will use for process incoming connections
+     */
+    public TcpServerHandlerFactory getHandlerFactory() {
+        return handlerFactory;
     }
 
-    public void setFactory(TcpServerHandlerFactory factory) {
-        this.factory = factory;
-    }
-
+    /**
+     * @return - count of worker (thread) which TCP proxy will use for processing
+     *         incoming client connection, should more 0
+     */
     public int getWorkerCount() {
         return workerCount;
-    }
-
-    public void setWorkerCount(int workerCount) {
-        this.workerCount = workerCount;
     }
 
 }

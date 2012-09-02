@@ -16,6 +16,9 @@ Copyright 2012 Artem Stasuk
 
 package com.github.terma.javaniotcpproxy;
 
+/**
+ * TCP proxy configuration.
+ */
 public class TcpProxyConfig {
 
     private final int localPort;
@@ -29,18 +32,31 @@ public class TcpProxyConfig {
         this.remotePort = remotePort;
     }
 
+    /**
+     * @return - local port which TCP proxy will be listening, should be 0..64000
+     */
     public int getLocalPort() {
         return localPort;
     }
 
+    /**
+     * @return - remote port on which TCP proxy will send all traffic from incoming connections
+     */
     public int getRemotePort() {
         return remotePort;
     }
 
+    /**
+     * @return - remote host on which TCP proxy will send all traffic from incoming connections
+     */
     public String getRemoteHost() {
         return remoteHost;
     }
 
+    /**
+     * @return - count of worker (thread) which TCP proxy will use for processing
+     *         incoming client connection, should more 0
+     */
     public int getWorkerCount() {
         return workerCount;
     }

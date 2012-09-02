@@ -24,6 +24,8 @@ import com.github.terma.javaniotcpserver.TcpServerConfig;
  * <p/>
  * After starting it listening local port and send all incoming
  * traffic on it from client to remote host and from remote host to client.
+ * Doesn't have any timeout. If client or remote server closes connection it will
+ * close opposite connection.
  * <p/>
  * Multi-thread and asynchronous TCP proxy server based on NIO.
  * <p/>
@@ -39,9 +41,10 @@ public class TcpProxy {
     private final TcpServer server;
 
     public TcpProxy(final TcpProxyConfig config) {
-        final TcpServerConfig serverConfig = new TcpServerConfig(config.getLocalPort());
-        serverConfig.setFactory(new TcpProxyConnectorFactory(config));
-        serverConfig.setWorkerCount(config.getWorkerCount());
+        TcpProxyConnectorFactory handlerFactory = new TcpProxyConnectorFactory(config);
+
+        final TcpServerConfig serverConfig =
+                new TcpServerConfig(config.getLocalPort(), handlerFactory, config.getWorkerCount());
 
         server = new TcpServer(serverConfig);
     }

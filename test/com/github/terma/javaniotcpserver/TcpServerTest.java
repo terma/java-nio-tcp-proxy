@@ -1,16 +1,15 @@
 package com.github.terma.javaniotcpserver;
 
 import org.junit.Test;
-
-import java.io.IOException;
+import org.mockito.Mockito;
 
 public class TcpServerTest {
 
-    private final TcpServerConfig config = new TcpServerConfig(0);
+    private final TcpServerHandlerFactory handlerFactory = Mockito.mock(TcpServerHandlerFactory.class);
+    private TcpServerConfig config = new TcpServerConfig(0, handlerFactory, 1);
 
     @Test
-    public void shouldSuccessStartAndShutdown() throws IOException {
-        config.setWorkerCount(1);
+    public void shouldSuccessStartAndShutdown() {
         TcpServer connector = new TcpServer(config);
 
         connector.start();
@@ -18,8 +17,8 @@ public class TcpServerTest {
     }
 
     @Test
-    public void shouldSuccessStartAndShutdownWithThreeWorkers() throws IOException {
-        config.setWorkerCount(3);
+    public void shouldSuccessStartAndShutdownWithThreeWorkers() {
+        config = new TcpServerConfig(0, handlerFactory, 3);
         TcpServer connector = new TcpServer(config);
 
         connector.start();
@@ -27,8 +26,7 @@ public class TcpServerTest {
     }
 
     @Test
-    public void shouldSuccessShutdownTwice() throws IOException {
-        config.setWorkerCount(1);
+    public void shouldSuccessShutdownTwice() {
         TcpServer connector = new TcpServer(config);
 
         connector.start();
@@ -37,14 +35,13 @@ public class TcpServerTest {
     }
 
     @Test
-    public void shouldSuccessShutdownWithoutStart() throws IOException {
+    public void shouldSuccessShutdownWithoutStart() {
         TcpServer connector = new TcpServer(config);
         connector.shutdown();
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void shouldFailWhenStartTwice() throws IOException {
-        config.setWorkerCount(1);
+    public void shouldFailWhenStartTwice() {
         TcpServer connector = new TcpServer(config);
         connector.start();
 
@@ -56,20 +53,8 @@ public class TcpServerTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void shouldFailWhenCreateWithNullConfig() throws IOException {
+    public void shouldFailWhenCreateWithNullConfig() {
         new TcpServer(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWhenStartWithWorkerCountsZero() throws IOException {
-        config.setWorkerCount(0);
-        new TcpServer(config).start();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWhenStartWithWorkerCountsNegative() throws IOException {
-        config.setWorkerCount(-10);
-        new TcpServer(config).start();
     }
 
 }
