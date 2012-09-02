@@ -54,7 +54,11 @@ public class TcpProxyRunner {
         if (LOGGER.isLoggable(Level.INFO))
             LOGGER.info("TcpProxy will use " + workerCount + " workers per connector");
 
-        for (final TcpProxyConfig config : configs) new TcpProxy(config).start();
+        for (final TcpProxyConfig config : configs) {
+            config.setWorkerCount(workerCount);
+
+            new TcpProxy(config).start();
+        }
 
         if (LOGGER.isLoggable(Level.INFO))
             LOGGER.info("TcpProxy started");
