@@ -126,7 +126,7 @@ class TcpProxyConnector implements TcpServerHandler {
             destroy();
 
             if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.log(Level.INFO, "Client ot server closed.", exception);
+                LOGGER.log(Level.INFO, "Channel was closed by client or server.", exception);
         } catch (final IOException exception) {
             destroy();
 
