@@ -14,7 +14,7 @@ Copyright 2012 Artem Stasuk
    limitations under the License.
  */
 
-package com.github.javaniotcpproxy.handler;
+package com.github.terma.javaniotcpproxy;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

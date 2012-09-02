@@ -14,56 +14,48 @@ Copyright 2012 Artem Stasuk
    limitations under the License.
  */
 
-package com.github.javaniotcpproxy;
+package com.github.terma.javaniotcpserver;
 
-import com.github.javaniotcpproxy.configuration.TcpProxyConfig;
-import com.github.javaniotcpproxy.handler.TcpProxyHandler;
-import com.github.javaniotcpproxy.handler.TcpProxyHandlerAcceptor;
-
-import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TcpProxyConnector {
+public class TcpServer {
 
     private final static Logger LOGGER = Logger.getAnonymousLogger();
 
-    private final TcpProxyConfig config;
+    private final TcpServerConfig config;
     private final String name;
 
-    private Queue<TcpProxyHandler> handlers;
+    private Queue<TcpServerHandler> handlers;
     private Thread[] workers;
 
-    public TcpProxyConnector(final TcpProxyConfig config) {
+    public TcpServer(final TcpServerConfig config) {
         this.config = config;
-        name = "TcpProxyConnector to " + config.getRemoteHost() + ":" + config.getRemotePort()
-                + " from " + config.getLocalPort();
+        name = "TcpServer on port " + config.getPort();
     }
 
     /**
      * This method starts waiting incoming connections for proxy to remote host.
      * Method return control when all worker will be started, it isn't block.
      *
-     * @param workerCount - count of workers
-     * @throws IOException                   - if problem with opening selector
-     * @throws IllegalArgumentException      - if count of worker < 1
+     * @throws IllegalArgumentException      - if count of workers less then 1
      * @throws UnsupportedOperationException - if you try start already started connector
      */
-    public void start(final int workerCount) throws IOException {
-        if (workerCount < 1) throw new IllegalArgumentException("Count of workers should be more 1!");
+    public void start() {
+        if (config.getWorkerCount() < 1) throw new IllegalArgumentException("Count of workers should be at least 1!");
         if (workers != null) throw new UnsupportedOperationException("Please shutdown connector!");
 
         if (LOGGER.isLoggable(Level.INFO))
-            LOGGER.info("Starting " + name + " with " + workerCount + " workers");
+            LOGGER.info("Starting " + name + " with " + config.getWorkerCount() + " workers");
 
-        handlers = new ConcurrentLinkedQueue<TcpProxyHandler>();
-        handlers.add(new TcpProxyHandlerAcceptor(config, handlers));
+        handlers = new ConcurrentLinkedQueue<TcpServerHandler>();
+        handlers.add(new TcpServerAcceptor(config, handlers));
 
-        workers = new Thread[workerCount];
+        workers = new Thread[config.getWorkerCount()];
         for (int i = 0; i < workers.length; i++) {
-            workers[i] = new TcpProxyWorker(handlers);
+            workers[i] = new TcpServerWorker(handlers);
         }
 
         for (final Thread worker : workers) worker.start();
@@ -99,7 +91,7 @@ public class TcpProxyConnector {
         }
         workers = null;
 
-        TcpProxyHandler handler;
+        TcpServerHandler handler;
         while ((handler = handlers.poll()) != null) handler.destroy();
         handlers = null;
 

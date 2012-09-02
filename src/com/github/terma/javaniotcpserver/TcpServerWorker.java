@@ -14,9 +14,7 @@ Copyright 2012 Artem Stasuk
    limitations under the License.
  */
 
-package com.github.javaniotcpproxy;
-
-import com.github.javaniotcpproxy.handler.TcpProxyHandler;
+package com.github.terma.javaniotcpserver;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -26,15 +24,15 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class TcpProxyWorker extends Thread {
+class TcpServerWorker extends Thread {
 
     private final static long SELECTOR_TIMEOUT = 100L;
     private final static Logger LOGGER = Logger.getAnonymousLogger();
 
-    private final Queue<TcpProxyHandler> handlers;
+    private final Queue<TcpServerHandler> handlers;
 
-    public TcpProxyWorker(final Queue<TcpProxyHandler> handlers) {
-        super("TcpProxyWorker");
+    public TcpServerWorker(final Queue<TcpServerHandler> handlers) {
+        super("TcpServerWorker");
         this.handlers = handlers;
     }
 
@@ -45,7 +43,7 @@ class TcpProxyWorker extends Thread {
             selector = Selector.open();
 
             while (!Thread.interrupted()) {
-                TcpProxyHandler newHandler = handlers.poll();
+                TcpServerHandler newHandler = handlers.poll();
                 if (newHandler != null) {
                     newHandler.register(selector);
                 }
@@ -54,7 +52,7 @@ class TcpProxyWorker extends Thread {
 
                 final Set<SelectionKey> keys = selector.selectedKeys();
                 for (final SelectionKey key : keys) {
-                    final TcpProxyHandler handler = (TcpProxyHandler) key.attachment();
+                    final TcpServerHandler handler = (TcpServerHandler) key.attachment();
                     handler.process(key);
                 }
                 keys.clear();

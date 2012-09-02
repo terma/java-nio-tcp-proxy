@@ -14,12 +14,12 @@ Copyright 2012 Artem Stasuk
    limitations under the License.
  */
 
-package com.github.javaniotcpproxy.handler;
+package com.github.terma.javaniotcpserver;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
-public interface TcpProxyHandler {
+public interface TcpServerHandler {
 
     void register(Selector selector);
 

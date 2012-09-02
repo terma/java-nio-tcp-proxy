@@ -1,6 +1,4 @@
-package com.github.javaniotcpproxy.handler;
-
-import com.github.javaniotcpproxy.configuration.TcpProxyConfig;
+package com.github.terma.javaniotcpserver;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,14 +10,14 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
+class TcpServerAcceptor implements TcpServerHandler {
 
     private final static Logger LOGGER = Logger.getAnonymousLogger();
 
-    private final TcpProxyConfig config;
-    private final Queue<TcpProxyHandler> handlers;
+    private final TcpServerConfig config;
+    private final Queue<TcpServerHandler> handlers;
 
-    public TcpProxyHandlerAcceptor(final TcpProxyConfig config, final Queue<TcpProxyHandler> handlers) {
+    public TcpServerAcceptor(final TcpServerConfig config, final Queue<TcpServerHandler> handlers) {
         this.config = config;
         this.handlers = handlers;
     }
@@ -28,7 +26,7 @@ public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
     public void register(final Selector selector) {
         try {
             final ServerSocketChannel server = ServerSocketChannel.open();
-            server.socket().bind(new InetSocketAddress(config.getLocalPort()));
+            server.socket().bind(new InetSocketAddress(config.getPort()));
             server.configureBlocking(false);
             server.register(selector, SelectionKey.OP_ACCEPT, this);
         } catch (final IOException exception) {
@@ -46,7 +44,7 @@ public class TcpProxyHandlerAcceptor implements TcpProxyHandler {
                 SocketChannel clientChannel;
                 clientChannel = server.accept();
 
-                handlers.add(new TcpProxyHandlerConnector(clientChannel, config));
+                handlers.add(config.getFactory().create(clientChannel));
             } catch (final IOException exception) {
                 if (LOGGER.isLoggable(Level.SEVERE))
                     LOGGER.log(Level.SEVERE, "Can't accept client connection!", exception);
