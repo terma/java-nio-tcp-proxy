@@ -21,6 +21,23 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Simple TCP server based on NIO.
+ * <p/>
+ * This server provides functionality only for opens server
+ * socket receives incoming connection. After that server use external
+ * handler factory {@link TcpServerHandlerFactory} for create handler for
+ * each incoming connection {@link TcpServerHandler}
+ * <p/>
+ * Server processes incoming connections in multi-thread mode.
+ * It creates queues for incoming connection and pool of thread + selector,
+ * only one thread will be acceptor for incoming connection, others will
+ * use queues for get accepted connection and start work with it till finish.
+ *
+ * @see TcpServerConfig
+ * @see TcpServerHandler
+ * @see TcpServerHandlerFactory
+ */
 public class TcpServer {
 
     private final static Logger LOGGER = Logger.getAnonymousLogger();
