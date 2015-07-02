@@ -21,15 +21,18 @@ import com.github.terma.javaniotcpserver.TcpServerConfig;
 
 /**
  * TCP proxy.
- * <p/>
+ * <p>
  * After starting it listening local port and send all incoming
  * traffic on it from client to remote host and from remote host to client.
  * Doesn't have any timeout. If client or remote server closes connection it will
  * close opposite connection.
- * <p/>
+ * </p>
+ * <p>
  * Multi-thread and asynchronous TCP proxy server based on NIO.
- * <p/>
+ * </p>
+ * <p>
  * You can create any count of proxy instances and run they in together.
+ * </p>
  *
  * @see TcpProxyConnectorFactory
  * @see TcpProxyConnector
@@ -53,21 +56,26 @@ public class TcpProxy {
      * Start server.
      * This method run servers worked then return control.
      * This method isn't blocking.
-     * <p/>
+     * <p>
      * If you call this method when server is started, it throw exception.
-     * <p/>
+     * </p>
+     * <p>
      * See {@link com.github.terma.javaniotcpserver.TcpServer#start()}
+     * </p>
      */
     public void start() {
         server.start();
     }
 
     /**
+     * <p>
      * Stop server and release all resources.
      * If server already been closed this method return immediately
      * without side effects.
-     * <p/>
+     * </p>
+     * <p>
      * See {@link com.github.terma.javaniotcpserver.TcpServer#shutdown()}
+     * </p>
      */
     public void shutdown() {
         server.shutdown();

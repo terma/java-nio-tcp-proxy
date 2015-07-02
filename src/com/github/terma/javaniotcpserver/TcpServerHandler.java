@@ -27,12 +27,16 @@ import java.nio.channels.Selector;
 public interface TcpServerHandler {
 
     /**
+     * <p>
      * Called when worker get handler from queue.
-     * <p/>
+     * </p>
+     * <p>
      * You can use this method for register it channel on
      * selector.
-     * <p/>
+     * </p>
+     * <p>
      * This method called only one time.
+     * </p>
      *
      * @param selector - selector which will support this handler.
      */
@@ -48,10 +52,13 @@ public interface TcpServerHandler {
     void process(SelectionKey key);
 
     /**
+     * <p>
      * Called when workers were stopped and server should
      * close all not processed channels.
-     * <p/>
+     * </p>
+     * <p>
      * Called only one time.
+     * </p>
      */
     void destroy();
 
