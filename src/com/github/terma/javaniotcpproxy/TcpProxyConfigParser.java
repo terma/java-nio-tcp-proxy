@@ -38,7 +38,9 @@ public class TcpProxyConfigParser {
 
             proxyNames.add(propertyName.substring(0, dotIndex));
         }
-        if (proxyNames.isEmpty()) throw new IllegalArgumentException("Please specify at least one proxy.");
+        if (proxyNames.isEmpty()) {
+          throw new IllegalArgumentException("Please specify at least one proxy.");
+        }
 
         final List<TcpProxyConfig> tcpProxyConfigs = new ArrayList<TcpProxyConfig>();
         for (final String proxyName : proxyNames) {

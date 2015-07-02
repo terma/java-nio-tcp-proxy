@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class TcpServer {
 
-    private final static Logger LOGGER = Logger.getAnonymousLogger();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private final TcpServerConfig config;
     private final String name;

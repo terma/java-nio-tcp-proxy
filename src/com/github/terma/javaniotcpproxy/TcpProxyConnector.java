@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 
 class TcpProxyConnector implements TcpServerHandler {
 
-    private final static Logger LOGGER = Logger.getAnonymousLogger();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private final TcpProxyBuffer clientBuffer = new TcpProxyBuffer();
     private final TcpProxyBuffer serverBuffer = new TcpProxyBuffer();

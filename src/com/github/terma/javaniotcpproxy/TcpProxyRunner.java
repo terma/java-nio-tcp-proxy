@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 public class TcpProxyRunner {
 
-    private final static Logger LOGGER = Logger.getAnonymousLogger();
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     public static void main(final String[] args) {
         if (args.length != 1) {
