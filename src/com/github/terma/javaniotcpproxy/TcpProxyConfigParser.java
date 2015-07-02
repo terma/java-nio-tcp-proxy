@@ -39,7 +39,7 @@ public class TcpProxyConfigParser {
             final int remotePort = findIntegerProperty(properties, proxyName + ".remotePort");
             final String remoteHost = findProperty(properties, proxyName + ".remoteHost");
 
-            tcpProxyConfigs.add(new TcpProxyConfig(localPort, remoteHost, remotePort));
+            tcpProxyConfigs.add(new StaticTcpProxyConfig(localPort, remoteHost, remotePort));
         }
         return tcpProxyConfigs;
     }

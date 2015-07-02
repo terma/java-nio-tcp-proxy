@@ -56,7 +56,6 @@ public class TcpProxyRunner {
 
         for (final TcpProxyConfig config : configs) {
             config.setWorkerCount(workerCount);
-
             new TcpProxy(config).start();
         }
 
