@@ -50,15 +50,15 @@ public class StaticTcpProxyConfigParserTest {
 
         Assert.assertEquals(2, instances.size());
 
-        TcpProxyConfig test1 = instances.get(0);
-        Assert.assertEquals(1, test1.getLocalPort());
-        Assert.assertEquals(2, test1.getRemotePort());
-        Assert.assertEquals("www", test1.getRemoteHost());
-
-        TcpProxyConfig test2 = instances.get(1);
+        TcpProxyConfig test2 = instances.get(0);
         Assert.assertEquals(90, test2.getLocalPort());
         Assert.assertEquals(91, test2.getRemotePort());
         Assert.assertEquals("bbb", test2.getRemoteHost());
+
+        TcpProxyConfig test1 = instances.get(1);
+        Assert.assertEquals(1, test1.getLocalPort());
+        Assert.assertEquals(2, test1.getRemotePort());
+        Assert.assertEquals("www", test1.getRemoteHost());
     }
 
     @Test
