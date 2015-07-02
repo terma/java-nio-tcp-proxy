@@ -26,8 +26,8 @@ import java.util.logging.Logger;
 
 class TcpServerWorker extends Thread {
 
-    private final static long SELECTOR_TIMEOUT = 100L;
-    private final static Logger LOGGER = Logger.getAnonymousLogger();
+    private static final long SELECTOR_TIMEOUT = 100L;
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private final Queue<TcpServerHandler> handlers;
 
@@ -58,15 +58,17 @@ class TcpServerWorker extends Thread {
                 keys.clear();
             }
         } catch (final IOException exception) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, "Problem with selector, worker will be stopped!", exception);
+            if (LOGGER.isLoggable(Level.SEVERE)) {
+              LOGGER.log(Level.SEVERE, "Problem with selector, worker will be stopped!", exception);
+            }
         } finally {
             if (selector != null) {
                 try {
                     selector.close();
                 } catch (IOException exception) {
-                    if (LOGGER.isLoggable(Level.WARNING))
-                        LOGGER.log(Level.WARNING, "Could not close selector properly.", exception);
+                    if (LOGGER.isLoggable(Level.WARNING)) {
+                      LOGGER.log(Level.WARNING, "Could not close selector properly.", exception);
+                    }
                 }
             }
         }

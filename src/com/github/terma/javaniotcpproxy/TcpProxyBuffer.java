@@ -29,7 +29,7 @@ class TcpProxyBuffer {
 
     }
 
-    private final static int BUFFER_SIZE = 1000;
+    private static final int BUFFER_SIZE = 1000;
 
     private final ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
     private BufferState state = BufferState.READY_TO_WRITE;
@@ -44,7 +44,9 @@ class TcpProxyBuffer {
 
     public void writeFrom(SocketChannel channel) throws IOException {
         int read = channel.read(buffer);
-        if (read == -1) throw new ClosedChannelException();
+        if (read == -1) {
+          throw new ClosedChannelException();
+        }
 
         if (read > 0) {
             buffer.flip();

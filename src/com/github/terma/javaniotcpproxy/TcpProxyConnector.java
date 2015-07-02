@@ -46,33 +46,49 @@ class TcpProxyConnector implements TcpServerHandler {
 
     public void readFromClient() throws IOException {
         serverBuffer.writeFrom(clientChannel);
-        if (serverBuffer.isReadyToRead()) register();
+        if (serverBuffer.isReadyToRead()) {
+          register();
+        }
     }
 
     public void readFromServer() throws IOException {
         clientBuffer.writeFrom(serverChannel);
-        if (clientBuffer.isReadyToRead()) register();
+        if (clientBuffer.isReadyToRead()) {
+          register();
+        }
     }
 
     public void writeToClient() throws IOException {
         clientBuffer.writeTo(clientChannel);
-        if (clientBuffer.isReadyToWrite()) register();
+        if (clientBuffer.isReadyToWrite()) {
+          register();
+        }
     }
 
     public void writeToServer() throws IOException {
         serverBuffer.writeTo(serverChannel);
-        if (serverBuffer.isReadyToWrite()) register();
+        if (serverBuffer.isReadyToWrite()) {
+          register();
+        }
     }
 
     public void register() throws ClosedChannelException {
         int clientOps = 0;
-        if (serverBuffer.isReadyToWrite()) clientOps |= SelectionKey.OP_READ;
-        if (clientBuffer.isReadyToRead()) clientOps |= SelectionKey.OP_WRITE;
+        if (serverBuffer.isReadyToWrite()) {
+          clientOps |= SelectionKey.OP_READ;
+        }
+        if (clientBuffer.isReadyToRead()) {
+          clientOps |= SelectionKey.OP_WRITE;
+        }
         clientChannel.register(selector, clientOps, this);
 
         int serverOps = 0;
-        if (clientBuffer.isReadyToWrite()) serverOps |= SelectionKey.OP_READ;
-        if (serverBuffer.isReadyToRead()) serverOps |= SelectionKey.OP_WRITE;
+        if (clientBuffer.isReadyToWrite()) {
+          serverOps |= SelectionKey.OP_READ;
+        }
+        if (serverBuffer.isReadyToRead()) {
+          serverOps |= SelectionKey.OP_WRITE;
+        }
         serverChannel.register(selector, serverOps, this);
     }
 
@@ -81,8 +97,9 @@ class TcpProxyConnector implements TcpServerHandler {
             try {
                 channel.close();
             } catch (IOException exception) {
-                if (LOGGER.isLoggable(Level.WARNING))
-                    LOGGER.log(Level.WARNING, "Could not close channel properly.", exception);
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                  LOGGER.log(Level.WARNING, "Could not close channel properly.", exception);
+                }
             }
         }
     }
@@ -104,9 +121,10 @@ class TcpProxyConnector implements TcpServerHandler {
         } catch (final IOException exception) {
             destroy();
 
-            if (LOGGER.isLoggable(Level.WARNING))
-                LOGGER.log(Level.WARNING, "Could not connect to "
-                        + config.getRemoteHost() + ":" + config.getRemotePort(), exception);
+            if (LOGGER.isLoggable(Level.WARNING)) {
+              LOGGER.log(Level.WARNING, "Could not connect to "
+                  + config.getRemoteHost() + ":" + config.getRemotePort(), exception);
+            }
         }
     }
 
@@ -114,24 +132,34 @@ class TcpProxyConnector implements TcpServerHandler {
     public void process(final SelectionKey key) {
         try {
             if (key.channel() == clientChannel) {
-                if (key.isValid() && key.isReadable()) readFromClient();
-                if (key.isValid() && key.isWritable()) writeToClient();
+                if (key.isValid() && key.isReadable()) {
+                  readFromClient();
+                }
+                if (key.isValid() && key.isWritable()) {
+                  writeToClient();
+                }
             }
 
             if (key.channel() == serverChannel) {
-                if (key.isValid() && key.isReadable()) readFromServer();
-                if (key.isValid() && key.isWritable()) writeToServer();
+                if (key.isValid() && key.isReadable()) {
+                  readFromServer();
+                }
+                if (key.isValid() && key.isWritable()) {
+                  writeToServer();
+                }
             }
         } catch (final ClosedChannelException exception) {
             destroy();
 
-            if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.log(Level.INFO, "Channel was closed by client or server.", exception);
+            if (LOGGER.isLoggable(Level.INFO)) {
+              LOGGER.log(Level.INFO, "Channel was closed by client or server.", exception);
+            }
         } catch (final IOException exception) {
             destroy();
 
-            if (LOGGER.isLoggable(Level.WARNING))
-                LOGGER.log(Level.WARNING, "Could not process.", exception);
+            if (LOGGER.isLoggable(Level.WARNING)) {
+              LOGGER.log(Level.WARNING, "Could not process.", exception);
+            }
         }
     }
 

@@ -28,8 +28,8 @@ import java.util.logging.Logger;
 
 class TcpServerAcceptor implements TcpServerHandler {
 
-    private final static int ACCEPT_BUFFER_SIZE = 1000;
-    private final static Logger LOGGER = Logger.getAnonymousLogger();
+    private static final int ACCEPT_BUFFER_SIZE = 1000;
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
 
     private final TcpServerConfig config;
     private final Queue<TcpServerHandler> handlers;
@@ -47,8 +47,9 @@ class TcpServerAcceptor implements TcpServerHandler {
             server.configureBlocking(false);
             server.register(selector, SelectionKey.OP_ACCEPT, this);
         } catch (final IOException exception) {
-            if (LOGGER.isLoggable(Level.SEVERE))
-                LOGGER.log(Level.SEVERE, "Can't init server connection!", exception);
+            if (LOGGER.isLoggable(Level.SEVERE)) {
+              LOGGER.log(Level.SEVERE, "Can't init server connection!", exception);
+            }
         }
     }
 
@@ -63,8 +64,9 @@ class TcpServerAcceptor implements TcpServerHandler {
 
                 handlers.add(config.getHandlerFactory().create(clientChannel));
             } catch (final IOException exception) {
-                if (LOGGER.isLoggable(Level.SEVERE))
-                    LOGGER.log(Level.SEVERE, "Can't accept client connection!", exception);
+              if (LOGGER.isLoggable(Level.SEVERE)) {
+                LOGGER.log(Level.SEVERE, "Can't accept client connection!", exception);
+              }
             }
         }
     }

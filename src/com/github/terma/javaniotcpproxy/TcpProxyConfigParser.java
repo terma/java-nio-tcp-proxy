@@ -16,7 +16,12 @@ Copyright 2012 Artem Stasuk
 
 package com.github.terma.javaniotcpproxy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 public class TcpProxyConfigParser {
 
@@ -26,8 +31,10 @@ public class TcpProxyConfigParser {
         final List<String> propertySet = (List<String>) Collections.list(properties.propertyNames());
         for (final String propertyName : propertySet) {
             final int dotIndex = propertyName.lastIndexOf('.');
-            if (dotIndex == -1) throw new IllegalArgumentException(
-                    "Invalid property " + propertyName + " should be <proxy name>.localPort|remotePort|remoteHost");
+            if (dotIndex == -1) {
+              throw new IllegalArgumentException(
+                  "Invalid property " + propertyName + " should be <proxy name>.localPort|remotePort|remoteHost");
+            }
 
             proxyNames.add(propertyName.substring(0, dotIndex));
         }
@@ -56,7 +63,9 @@ public class TcpProxyConfigParser {
 
     private static String findProperty(Properties properties, String key) {
         final String value = properties.getProperty(key);
-        if (value == null) throw new IllegalArgumentException("Please specify " + key);
+        if (value == null) {
+          throw new IllegalArgumentException("Please specify " + key);
+        }
         return value;
     }
 

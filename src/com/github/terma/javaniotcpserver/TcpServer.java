@@ -63,9 +63,9 @@ public class TcpServer {
      * @throws IllegalArgumentException - when worker count &lt; 1
      */
     public TcpServer(final TcpServerConfig config) {
-        if (config == null)
-            throw new NullPointerException("Please specify config! Thx!");
-
+        if (config == null) {
+          throw new NullPointerException("Please specify config! Thx!");
+        }
         this.config = config;
         name = "TcpServer on port " + config.getPort();
     }
@@ -77,10 +77,13 @@ public class TcpServer {
      * @throws UnsupportedOperationException - if you try to start already started connector
      */
     public void start() {
-        if (workers != null) throw new UnsupportedOperationException("Please shutdown connector!");
+        if (workers != null) {
+          throw new UnsupportedOperationException("Please shutdown connector!");
+        }
 
-        if (LOGGER.isLoggable(Level.INFO))
-            LOGGER.info("Starting " + name + " with " + config.getWorkerCount() + " workers");
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.info("Starting " + name + " with " + config.getWorkerCount() + " workers");
+        }
 
         handlers = new ConcurrentLinkedQueue<TcpServerHandler>();
         handlers.add(new TcpServerAcceptor(config, handlers));
@@ -90,10 +93,13 @@ public class TcpServer {
             workers[i] = new TcpServerWorker(handlers);
         }
 
-        for (final Thread worker : workers) worker.start();
+        for (final Thread worker : workers) {
+          worker.start();
+        }
 
-        if (LOGGER.isLoggable(Level.INFO))
-            LOGGER.info(name + " started");
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.info(name + " started");
+        }
     }
 
     /**
@@ -108,13 +114,15 @@ public class TcpServer {
      */
     public void shutdown() {
         if (workers == null) {
-            if (LOGGER.isLoggable(Level.INFO))
-                LOGGER.info(name + " already been shutdown");
+            if (LOGGER.isLoggable(Level.INFO)) {
+              LOGGER.info(name + " already been shutdown");
+            }
             return;
         }
 
-        if (LOGGER.isLoggable(Level.INFO))
-            LOGGER.info("Starting shutdown " + name);
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.info("Starting shutdown " + name);
+        }
 
         for (final Thread worker : workers) {
             worker.interrupt();
@@ -127,11 +135,14 @@ public class TcpServer {
         workers = null;
 
         TcpServerHandler handler;
-        while ((handler = handlers.poll()) != null) handler.destroy();
+        while ((handler = handlers.poll()) != null) {
+          handler.destroy();
+        }
         handlers = null;
 
-        if (LOGGER.isLoggable(Level.INFO))
-            LOGGER.info(name + " was shutdown");
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.info(name + " was shutdown");
+        }
     }
 
 }

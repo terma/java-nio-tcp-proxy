@@ -26,14 +26,17 @@ public class TcpServerConfig {
     private final TcpServerHandlerFactory handlerFactory;
 
     public TcpServerConfig(int port, TcpServerHandlerFactory handlerFactory, int workerCount) {
-        if (workerCount < 1)
-            throw new IllegalArgumentException("Count of workers should be at least 1!");
+        if (workerCount < 1) {
+          throw new IllegalArgumentException("Count of workers should be at least 1!");
+        }
 
-        if (port < 0)
-            throw new IllegalArgumentException("Port can't be negative!");
+        if (port < 0) {
+          throw new IllegalArgumentException("Port can't be negative!");
+        }
 
-        if (handlerFactory == null)
-            throw new NullPointerException("Please specify handler factory!");
+        if (handlerFactory == null) {
+          throw new NullPointerException("Please specify handler factory!");
+        }
 
         this.port = port;
         this.workerCount = workerCount;
