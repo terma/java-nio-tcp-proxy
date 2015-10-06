@@ -28,10 +28,10 @@ public interface TcpServerHandler {
 
     /**
      * Called when worker get handler from queue.
-     * <p/>
+     * 
      * You can use this method for register it channel on
      * selector.
-     * <p/>
+     * 
      * This method called only one time.
      *
      * @param selector - selector which will support this handler.
@@ -50,7 +50,7 @@ public interface TcpServerHandler {
     /**
      * Called when workers were stopped and server should
      * close all not processed channels.
-     * <p/>
+     * 
      * Called only one time.
      */
     void destroy();
