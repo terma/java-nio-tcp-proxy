@@ -23,16 +23,16 @@ import java.util.logging.Logger;
 
 /**
  * Simple TCP server based on NIO.
- * <p/>
+ *
  * Server use workers for process incoming client connections.
- * <p/>
+ *
  * Worker is thread, it waits on own selector {@link java.nio.channels.Selector}
- * <p/>
+ *
  * Only one worker processes accept for incoming client connection, after
  * that this worker uses @{link TcpServerHandlerFactory} for create
  * handler @{link TcpServerHandler} and add it to not started handlers queue. All workers
  * have access to this queue.
- * <p/>
+ *
  * Worker has next lifecycle: try to get one not started handler from queue
  * if it exists register it, then wait on selector with timeout, get IO events
  * for each event get attached handler from key and process it.
@@ -92,7 +92,7 @@ public class TcpServer {
 
     /**
      * Shutdown connector.
-     * <p/>
+     *
      * This method wait when all resources will be closed.
      * You can call this method any time.
      * No problem and exceptions if you try to shutdown connector twice without start.
