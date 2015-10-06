@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
@@ -47,6 +49,12 @@ public class StaticTcpProxyConfigParserTest {
     @Test
     public void shouldGetListOnInstancesFromFile() throws URISyntaxException {
         List<TcpProxyConfig> instances = TcpProxyConfigParser.parse(properties);
+        Collections.sort(instances, new Comparator<TcpProxyConfig>() {
+            @Override
+            public int compare(TcpProxyConfig o1, TcpProxyConfig o2) {
+                return o2.getRemoteHost().compareTo(o1.getRemoteHost());
+            }
+        });
 
         Assert.assertEquals(2, instances.size());
 
