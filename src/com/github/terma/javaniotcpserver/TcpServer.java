@@ -54,7 +54,7 @@ public class TcpServer {
 
     /**
      * @param config - config
-     * @throws IllegalArgumentException - when worker count < 1
+     * @throws IllegalArgumentException - when worker count less than 1
      */
     public TcpServer(final TcpServerConfig config) {
         if (config == null)
