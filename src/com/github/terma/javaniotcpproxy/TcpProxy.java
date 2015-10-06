@@ -33,7 +33,7 @@ import com.github.terma.javaniotcpserver.TcpServerConfig;
  *
  * @see TcpProxyConnectorFactory
  * @see TcpProxyConnector
- * @see TcpProxyConfig
+ * @see StaticTcpProxyConfig
  * @see TcpServer
  */
 public class TcpProxy {

@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
 
-public class TcpProxyConfigParserTest {
+public class StaticTcpProxyConfigParserTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
