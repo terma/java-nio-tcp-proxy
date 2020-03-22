@@ -16,6 +16,7 @@ Copyright 2012 Artem Stasuk
 
 package com.github.terma.javaniotcpserver;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -62,13 +63,25 @@ class TcpServerWorker extends Thread {
                 LOGGER.log(Level.SEVERE, "Problem with selector, worker will be stopped!", exception);
         } finally {
             if (selector != null) {
-                try {
-                    selector.close();
-                } catch (IOException exception) {
-                    if (LOGGER.isLoggable(Level.WARNING))
-                        LOGGER.log(Level.WARNING, "Could not close selector properly.", exception);
-                }
+                closeSelector(selector);
             }
+        }
+    }
+
+    private void closeSelector(Selector selector) {
+        for (final SelectionKey key : selector.keys()) {
+            closeOrLog(key.channel(), "Could not selector channel properly.");
+        }
+
+        closeOrLog(selector, "Could not close selector properly.");
+    }
+
+    private void closeOrLog(Closeable closeable, String errorMessage) {
+        try {
+            closeable.close();
+        } catch (final IOException exception) {
+            if (LOGGER.isLoggable(Level.WARNING))
+                LOGGER.log(Level.WARNING, errorMessage, exception);
         }
     }
 
