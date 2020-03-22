@@ -27,9 +27,14 @@ public class StaticTcpProxyConfig implements TcpProxyConfig {
     private int workerCount;
 
     public StaticTcpProxyConfig(int localPort, String remoteHost, int remotePort) {
+        this(localPort, remoteHost, remotePort, 0);
+    }
+
+    public StaticTcpProxyConfig(int localPort, String remoteHost, int remotePort, int workerCount) {
         this.localPort = localPort;
         this.remoteHost = remoteHost;
         this.remotePort = remotePort;
+        this.workerCount = workerCount;
     }
 
     /**
