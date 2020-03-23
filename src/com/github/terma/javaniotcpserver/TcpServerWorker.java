@@ -70,7 +70,7 @@ class TcpServerWorker extends Thread {
 
     private void closeSelector(Selector selector) {
         for (final SelectionKey key : selector.keys()) {
-            closeOrLog(key.channel(), "Could not selector channel properly.");
+            closeOrLog(key.channel(), "Could not close selector channel properly.");
         }
 
         closeOrLog(selector, "Could not close selector properly.");
